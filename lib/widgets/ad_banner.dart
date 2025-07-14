@@ -61,44 +61,12 @@ class _AdBannerState extends State<AdBanner> {
 
   @override
   Widget build(BuildContext context) {
-    // If ads are not supported or failed to load, show a placeholder
-    if (!AdsService.isSupported || _bannerAd == null) {
-      return Container(
-        height: 56,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          border: Border(
-            top: BorderSide(
-              color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
-              width: 1,
-            ),
-          ),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Ad Banner',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Text(
-                'This is a placeholder for ad content.',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    // Show the loaded ad
+    // Always reserve space for the ad banner to prevent layout shifts
+    const double bannerHeight = 56.0;
+    
     return Container(
-      height: _bannerAd!.size.height.toDouble(),
+      height: bannerHeight,
+      width: double.infinity,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         border: Border(
@@ -108,11 +76,25 @@ class _AdBannerState extends State<AdBanner> {
           ),
         ),
       ),
-      child: _isAdLoaded
+      child: _bannerAd != null && _isAdLoaded
           ? AdWidget(ad: _bannerAd!)
-          : const Center(
-              child: CircularProgressIndicator(),
-            ),
+          : _bannerAd != null && !_isAdLoaded
+              ? const Center(
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                )
+              : Center(
+                  child: Text(
+                    'Ad Banner',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
     );
   }
 }
