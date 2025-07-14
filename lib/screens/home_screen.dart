@@ -92,6 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (taskIndex != -1) {
         final updatedTask = _tasks[taskIndex].copyWith(
           title: taskData['title'],
+          description: taskData['description'],
           dueDate: taskData['dueDate'],
           dueTime: taskData['dueTime'],
           reminder: taskData['reminder'],
@@ -106,6 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final newTask = Task(
         id: DateTime.now().toIso8601String(),
         title: taskData['title'],
+        description: taskData['description'],
         dueDate: taskData['dueDate'],
         dueTime: taskData['dueTime'],
         reminder: taskData['reminder'],

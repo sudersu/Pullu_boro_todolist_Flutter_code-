@@ -21,6 +21,7 @@ class _AdBannerState extends State<AdBanner> {
 
   void _loadAd() {
     if (!AdsService.isSupported) {
+      print('AdMob not supported on this platform');
       return;
     }
 
@@ -28,28 +29,45 @@ class _AdBannerState extends State<AdBanner> {
       size: AdsService.standardBannerSize,
       listener: BannerAdListener(
         onAdLoaded: (ad) {
-          setState(() {
-            _isAdLoaded = true;
-          });
-          print('Banner ad loaded');
+          print('✅ Banner ad loaded successfully');
+          if (mounted) {
+            setState(() {
+              _isAdLoaded = true;
+            });
+          }
         },
         onAdFailedToLoad: (ad, error) {
-          print('Banner ad failed to load: $error');
+          print('❌ Banner ad failed to load: ${error.message}');
+          print('Error code: ${error.code}');
+          print('Error domain: ${error.domain}');
           ad.dispose();
-          setState(() {
-            _bannerAd = null;
-            _isAdLoaded = false;
+          if (mounted) {
+            setState(() {
+              _bannerAd = null;
+              _isAdLoaded = false;
+            });
+          }
+          
+          // Retry loading after a delay
+          Future.delayed(const Duration(seconds: 5), () {
+            if (mounted) {
+              _loadAd();
+            }
           });
         },
         onAdOpened: (ad) {
-          print('Banner ad opened');
+          print('📱 Banner ad opened');
         },
         onAdClosed: (ad) {
-          print('Banner ad closed');
+          print('🔒 Banner ad closed');
+        },
+        onAdImpression: (ad) {
+          print('👁️ Banner ad impression recorded');
         },
       ),
     );
 
+    print('🔄 Loading banner ad with ID: ${AdsService.bannerAdUnitId}');
     _bannerAd?.load();
   }
 
@@ -61,44 +79,12 @@ class _AdBannerState extends State<AdBanner> {
 
   @override
   Widget build(BuildContext context) {
-    // If ads are not supported or failed to load, show a placeholder
-    if (!AdsService.isSupported || _bannerAd == null) {
-      return Container(
-        height: 56,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          border: Border(
-            top: BorderSide(
-              color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
-              width: 1,
-            ),
-          ),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Ad Banner',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Text(
-                'This is a placeholder for ad content.',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    // Show the loaded ad
+    // Use the actual banner ad size for proper display
+    final bannerHeight = _bannerAd?.size.height.toDouble() ?? 56.0;
+    
     return Container(
-      height: _bannerAd!.size.height.toDouble(),
+      height: bannerHeight,
+      width: double.infinity,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         border: Border(
@@ -108,11 +94,49 @@ class _AdBannerState extends State<AdBanner> {
           ),
         ),
       ),
-      child: _isAdLoaded
+      child: _bannerAd != null && _isAdLoaded
           ? AdWidget(ad: _bannerAd!)
-          : const Center(
-              child: CircularProgressIndicator(),
-            ),
+          : _bannerAd != null && !_isAdLoaded
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Loading ad...',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'Ad Space',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
     );
   }
 }

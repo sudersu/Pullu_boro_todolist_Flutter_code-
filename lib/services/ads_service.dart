@@ -2,11 +2,11 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'dart:io';
 
 class AdsService {
-  // Test ad unit IDs - replace with real ones for production
-  static const String _androidBannerAdUnitId = 'ca-app-pub-7863737202117990/6197868336';
-  static const String _iosBannerAdUnitId = 'ca-app-pub-7863737202117990/6197868336';
+  // Real production ad unit IDs for dailylist.pro
+  static const String _androidBannerAdUnitId = 'ca-app-pub-7863737202117990/3859479609';
+  static const String _iosBannerAdUnitId = 'ca-app-pub-7863737202117990/3859479609';
   
-  // Test ad units for development
+  // Test ad units for development (fallback only)
   static const String _testAndroidBannerAdUnitId = 'ca-app-pub-3940256099942544/6300978111';
   static const String _testIosBannerAdUnitId = 'ca-app-pub-3940256099942544/2934735716';
 
@@ -14,11 +14,19 @@ class AdsService {
 
   // Initialize the Mobile Ads SDK
   static Future<void> initialize() async {
-    if (_initialized) return;
+    if (_initialized) {
+      print('⚠️ AdMob SDK already initialized');
+      return;
+    }
 
-    await MobileAds.instance.initialize();
+    print('🔄 Initializing AdMob SDK...');
+    final initializationStatus = await MobileAds.instance.initialize();
     _initialized = true;
-    print('AdMob SDK initialized');
+    
+    print('✅ AdMob SDK initialized successfully');
+    print('📱 App ID: ca-app-pub-7863737202117990~1157047227');
+    print('🎯 Banner Unit ID: ${bannerAdUnitId}');
+    print('📊 Adapter status: ${initializationStatus.adapterStatuses}');
   }
 
   // Get the appropriate banner ad unit ID for the platform
