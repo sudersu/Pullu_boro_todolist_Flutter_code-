@@ -93,11 +93,16 @@ class TaskItem extends StatelessWidget {
   }
 
   Widget? _buildSubtitle(BuildContext context) {
-    if (task.dueDate.isEmpty && task.dueTime.isEmpty) return null;
-
     final theme = Theme.of(context);
-    String subtitle = '';
+    List<String> subtitleParts = [];
 
+    // Add description if exists
+    if (task.description.isNotEmpty) {
+      subtitleParts.add(task.description);
+    }
+
+    // Add date/time information
+    String dateTimeInfo = '';
     if (task.dueDate.isNotEmpty) {
       try {
         final date = DateFormat('yyyy-MM-dd').parse(task.dueDate);
@@ -106,16 +111,16 @@ class TaskItem extends StatelessWidget {
         final taskDate = DateTime(date.year, date.month, date.day);
 
         if (taskDate == today) {
-          subtitle = 'Today';
+          dateTimeInfo = 'Today';
         } else if (taskDate == today.add(const Duration(days: 1))) {
-          subtitle = 'Tomorrow';
+          dateTimeInfo = 'Tomorrow';
         } else if (taskDate == today.subtract(const Duration(days: 1))) {
-          subtitle = 'Yesterday';
+          dateTimeInfo = 'Yesterday';
         } else {
-          subtitle = DateFormat('MMM dd, yyyy').format(date);
+          dateTimeInfo = DateFormat('MMM dd, yyyy').format(date);
         }
       } catch (e) {
-        subtitle = task.dueDate;
+        dateTimeInfo = task.dueDate;
       }
     }
 
@@ -123,12 +128,22 @@ class TaskItem extends StatelessWidget {
       try {
         final time = DateFormat('HH:mm').parse(task.dueTime);
         final timeStr = DateFormat('h:mm a').format(time);
-        subtitle = subtitle.isEmpty ? timeStr : '$subtitle at $timeStr';
+        dateTimeInfo = dateTimeInfo.isEmpty ? timeStr : '$dateTimeInfo at $timeStr';
       } catch (e) {
         final timeStr = task.dueTime;
-        subtitle = subtitle.isEmpty ? timeStr : '$subtitle at $timeStr';
+        dateTimeInfo = dateTimeInfo.isEmpty ? timeStr : '$dateTimeInfo at $timeStr';
       }
     }
+
+    // Add date/time info if exists
+    if (dateTimeInfo.isNotEmpty) {
+      subtitleParts.add(dateTimeInfo);
+    }
+
+    // Return null if no subtitle content
+    if (subtitleParts.isEmpty) return null;
+
+    final subtitle = subtitleParts.join(' • ');
 
     // Check if task is overdue
     bool isOverdue = false;

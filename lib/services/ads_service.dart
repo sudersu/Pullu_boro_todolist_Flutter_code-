@@ -14,11 +14,19 @@ class AdsService {
 
   // Initialize the Mobile Ads SDK
   static Future<void> initialize() async {
-    if (_initialized) return;
+    if (_initialized) {
+      print('⚠️ AdMob SDK already initialized');
+      return;
+    }
 
-    await MobileAds.instance.initialize();
+    print('🔄 Initializing AdMob SDK...');
+    final initializationStatus = await MobileAds.instance.initialize();
     _initialized = true;
-    print('AdMob SDK initialized');
+    
+    print('✅ AdMob SDK initialized successfully');
+    print('📱 App ID: ca-app-pub-7863737202117990~1157047227');
+    print('🎯 Banner Unit ID: ${bannerAdUnitId}');
+    print('📊 Adapter status: ${initializationStatus.adapterStatuses}');
   }
 
   // Get the appropriate banner ad unit ID for the platform

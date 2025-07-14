@@ -19,6 +19,7 @@ class TaskModal extends StatefulWidget {
 class _TaskModalState extends State<TaskModal> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
+  final _descriptionController = TextEditingController();
   
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
@@ -33,6 +34,7 @@ class _TaskModalState extends State<TaskModal> {
   void _initializeFields() {
     if (widget.task != null) {
       _titleController.text = widget.task!.title;
+      _descriptionController.text = widget.task!.description;
       _reminderEnabled = widget.task!.reminder;
       
       // Parse existing date
@@ -59,6 +61,7 @@ class _TaskModalState extends State<TaskModal> {
   @override
   void dispose() {
     _titleController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
@@ -127,6 +130,7 @@ class _TaskModalState extends State<TaskModal> {
 
     final taskData = {
       'title': _titleController.text.trim(),
+      'description': _descriptionController.text.trim(),
       'dueDate': _selectedDate != null 
           ? DateFormat('yyyy-MM-dd').format(_selectedDate!) 
           : '',
@@ -196,6 +200,20 @@ class _TaskModalState extends State<TaskModal> {
                           return null;
                         },
                         autofocus: true,
+                      ),
+                      
+                      const SizedBox(height: 16),
+                      
+                      // Description field
+                      TextFormField(
+                        controller: _descriptionController,
+                        decoration: const InputDecoration(
+                          labelText: 'Description (Optional)',
+                          border: OutlineInputBorder(),
+                          hintText: 'Add more details about your task...',
+                        ),
+                        maxLines: 3,
+                        textInputAction: TextInputAction.newline,
                       ),
                       
                       const SizedBox(height: 24),

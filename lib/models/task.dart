@@ -1,6 +1,7 @@
 class Task {
   final String id;
   final String title;
+  final String description; // Task description
   final String dueDate; // YYYY-MM-DD format
   final String dueTime; // HH:MM format
   final bool reminder;
@@ -9,6 +10,7 @@ class Task {
   Task({
     required this.id,
     required this.title,
+    required this.description,
     required this.dueDate,
     required this.dueTime,
     required this.reminder,
@@ -20,6 +22,7 @@ class Task {
     return {
       'id': id,
       'title': title,
+      'description': description,
       'dueDate': dueDate,
       'dueTime': dueTime,
       'reminder': reminder,
@@ -32,6 +35,7 @@ class Task {
     return Task(
       id: json['id'] ?? '',
       title: json['title'] ?? '',
+      description: json['description'] ?? '',
       dueDate: json['dueDate'] ?? '',
       dueTime: json['dueTime'] ?? '',
       reminder: json['reminder'] ?? false,
@@ -43,6 +47,7 @@ class Task {
   Task copyWith({
     String? id,
     String? title,
+    String? description,
     String? dueDate,
     String? dueTime,
     bool? reminder,
@@ -51,6 +56,7 @@ class Task {
     return Task(
       id: id ?? this.id,
       title: title ?? this.title,
+      description: description ?? this.description,
       dueDate: dueDate ?? this.dueDate,
       dueTime: dueTime ?? this.dueTime,
       reminder: reminder ?? this.reminder,
@@ -60,7 +66,7 @@ class Task {
 
   @override
   String toString() {
-    return 'Task(id: $id, title: $title, dueDate: $dueDate, dueTime: $dueTime, reminder: $reminder, completed: $completed)';
+    return 'Task(id: $id, title: $title, description: $description, dueDate: $dueDate, dueTime: $dueTime, reminder: $reminder, completed: $completed)';
   }
 
   @override
